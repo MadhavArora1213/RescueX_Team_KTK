@@ -1,0 +1,94 @@
+:root {
+    --color-emergency-red: #DC2626;
+    --color-safe-green: #10B981;
+    --color-warning-yellow: #FACC15;
+    --color-light-gray: #F9FAFB;
+    --color-charcoal-black: #111827;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-light-gray);
+    color: var(--color-charcoal-black);
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-emergency-red);
+}
+
+button {
+    cursor: pointer;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.flex {
+    display: flex;
+}
+
+.grid {
+    display: grid;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.p-4 {
+    padding: 1rem;
+}
+
+.bg-red {
+    background-color: var(--color-emergency-red);
+}
+
+.bg-green {
+    background-color: var(--color-safe-green);
+}
+
+.bg-yellow {
+    background-color: var(--color-warning-yellow);
+}
+
+.bg-gray {
+    background-color: var(--color-light-gray);
+}
+
+.text-white {
+    color: white;
+}
+
+.border {
+    border: 1px solid;
+}
+
+.rounded {
+    border-radius: 0.5rem;
+}
+
+.shadow {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

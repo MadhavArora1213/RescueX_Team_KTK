@@ -1,0 +1,37 @@
+{
+  "name": "rescuegrid",
+  "version": "1.0.0",
+  "description": "AI-Powered Disaster Coordination & Communication Platform",
+  "main": "src/main.jsx",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "firebase": "^9.0.0",
+    "leaflet": "^1.7.1",
+    "react-leaflet": "^3.2.0",
+    "axios": "^0.21.1",
+    "web-vitals": "^1.0.1",
+    "tailwindcss": "^2.2.19"
+  },
+  "devDependencies": {
+    "vite": "^2.6.4",
+    "eslint": "^7.32.0",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "^2.5.1"
+  },
+  "keywords": [
+    "disaster",
+    "management",
+    "rescue",
+    "AI",
+    "communication"
+  ],
+  "author": "Team KTK",
+  "license": "MIT"
+}
