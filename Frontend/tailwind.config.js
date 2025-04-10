@@ -1,19 +1,19 @@
+
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        emergencyRed: '#DC2626',
-        safeGreen: '#10B981',
-        warningYellow: '#FACC15',
-        lightGray: '#F9FAFB',
-        charcoalBlack: '#111827',
+        'primary': '#3b82f6',
+        'secondary': '#ef4444',
+        'accent': '#eab308',
       },
-      fontFamily: {
-        heading: ['Montserrat', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+      animation: {
+        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

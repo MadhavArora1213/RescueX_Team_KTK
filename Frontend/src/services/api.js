@@ -1,63 +1,59 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://your-backend-api-url.com/api'; // Replace with your backend API URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Function to register a new agency
-export const registerAgency = async (agencyData) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/agencies/register`, agencyData);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
+// Create axios instance
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add token to requests
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+// Agency data
+export const getAgencyData = async (agencyId) => {
+  try {
+    const response = await api.get(`/agency/${agencyId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching agency data:', error);
+    throw error;
+  }
 };
 
-// Function to log in an agency
-export const loginAgency = async (credentials) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/agencies/login`, credentials);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
+// SOS signals
+export const createSOSSignal = async (sosData) => {
+  try {
+    const response = await api.post('/sos', sosData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating SOS signal:', error);
+    throw error;
+  }
 };
 
-// Function to send an SOS signal
-export const sendSOS = async (sosData) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/sos`, sosData);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
+export const getSOSSignals = async () => {
+  try {
+    const response = await api.get('/sos');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching SOS signals:', error);
+    throw error;
+  }
 };
 
-// Function to fetch real-time agency data
-export const fetchAgencies = async () => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/agencies`);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-};
-
-// Function to fetch SOS signals
-export const fetchSOSSignals = async () => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/sos`);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-};
-
-// Function to update agency status
-export const updateAgencyStatus = async (agencyId, statusData) => {
-    try {
-        const response = await axios.put(`${API_BASE_URL}/agencies/${agencyId}/status`, statusData);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-};
+export default api;

@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      'leaflet.heat': 'node_modules/leaflet.heat/dist/leaflet-heat.js'
     },
   },
   server: {
@@ -17,4 +18,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
+  optimizeDeps: {
+    include: ['leaflet.heat']
+  }
 });

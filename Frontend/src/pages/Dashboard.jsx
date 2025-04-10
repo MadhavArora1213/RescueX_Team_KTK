@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { MapView } from '../components/map/MapView';
+import MapView from '../components/map/MapView';
 import { AgencyDashboard } from '../components/agency/AgencyDashboard';
 import { ChatBot } from '../components/sos/ChatBot';
 
