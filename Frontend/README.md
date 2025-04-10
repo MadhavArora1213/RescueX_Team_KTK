@@ -1,48 +1,12 @@
-# RescueGrid: AI-Powered Disaster Coordination & Communication Platform
+# React + Vite
 
-## Overview
-RescueGrid is a real-time, intelligent web platform designed for disaster management. It facilitates coordination among rescue agencies, allowing them to register, communicate, and respond effectively during emergencies. The platform also empowers citizens to send SOS signals and receive assistance.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
-- **Dynamic Heatmap of SOS Signals**: Visualizes clustered distress calls in real-time.
-- **AI-Based Rescue Matching**: Assigns rescue tasks based on severity, proximity, and agency capability.
-- **Voice-Command Console**: Enables hands-free operation for rescue agents.
-- **Offline Mode + P2P Messaging**: Ensures communication during internet outages.
-- **Multilingual Chatbot for Citizens**: Assists citizens in local languages.
-- **Secure Admin Panel**: Manages disaster zones, alerts, and agency priorities.
+Currently, two official plugins are available:
 
-## Tech Stack
-- **Frontend**: React, Vite, TailwindCSS
-- **Backend**: Node.js, Express, Firebase, Python Flask
-- **Database**: Firebase Firestore
-- **Real-Time Communication**: WebSockets
-- **AI Model**: Scikit-learn for rescue task assignments
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Installation
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   ```
-2. Navigate to the frontend directory:
-   ```
-   cd Frontend
-   ```
-3. Install dependencies:
-   ```
-   npm install
-   ```
-4. Start the development server:
-   ```
-   npm run dev
-   ```
+## Expanding the ESLint configuration
 
-## Usage
-- **For Agencies**: Register and log in to view the dashboard, receive alerts, and communicate with other agencies.
-- **For Citizens**: Access the SOS portal to send distress signals without needing to log in.
-- **For Admins**: Monitor activities, manage agencies, and send push notifications.
-
-## Contributing
-Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
-
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

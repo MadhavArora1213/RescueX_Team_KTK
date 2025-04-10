@@ -1,57 +1,88 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
 import LoadingAnimation from './components/common/LoadingAnimation';
+import PrivateRoute from './components/auth/PrivateRoute';
+
+// Layout Components
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+
+// Page Components
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import SOSPortal from './pages/SOSPortal';
+import AgencyDirectory from './pages/AgencyDirectory';
+import AdminPanel from './pages/AdminPanel';
 import NotFound from './pages/NotFound';
-import PrivateRoute from './components/auth/PrivateRoute';
-import Header from './components/layout/Header';
-import Sidebar from './components/layout/Sidebar';
-import Footer from './components/layout/Footer';
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
-  
-  // Handle any initial data loading if needed
+  const { loading } = useAuth();
+  const [initialLoading, setInitialLoading] = useState(true);
+
   useEffect(() => {
-    // Simulate loading time
+    // Simulate initial loading/splash screen
     const timer = setTimeout(() => {
-      setLoading(false);
+      setInitialLoading(false);
     }, 2000);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
+  if (initialLoading) {
+    return <LoadingAnimation onLoadingComplete={() => setInitialLoading(false)} />;
+  }
+
   if (loading) {
-    return <LoadingAnimation onLoadingComplete={() => setLoading(false)} />;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex flex-grow">
-        <Sidebar />
-        <main className="flex-grow p-4">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/sos" element={<SOSPortal />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-      </div>
+      
+      <main className="flex-grow container mx-auto px-4 py-6">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/sos" element={
+            <PrivateRoute>
+              <SOSPortal />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/agencies" element={
+            <PrivateRoute>
+              <AgencyDirectory />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin" element={
+            <PrivateRoute>
+              <AdminPanel />
+            </PrivateRoute>
+          } />
+          
+          {/* Not Found */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      
       <Footer />
     </div>
   );

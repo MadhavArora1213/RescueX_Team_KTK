@@ -1,41 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import './LoadingAnimation.css';
+import React, { useEffect } from 'react';
+import Lottie from 'lottie-react';
+import rescueAnimation from '../../assets/animations/rescue-animation.json';
 
 const LoadingAnimation = ({ onLoadingComplete }) => {
-  const [progress, setProgress] = useState(0);
-  const [fadeOut, setFadeOut] = useState(false);
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        const newProgress = prev + Math.random() * 10;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setFadeOut(true);
-            setTimeout(() => {
-              if (onLoadingComplete) onLoadingComplete();
-            }, 500);
-          }, 500);
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 200);
-
-    return () => clearInterval(interval);
+    // Optional: You can add logic to track when animation is complete
+    // For now we rely on the parent component to control the timing
   }, [onLoadingComplete]);
 
   return (
-    <div className={`loading-screen ${fadeOut ? 'fade-out' : ''}`}>
-      <div className="loading-container">
-        <h1 className="logo">RescueGrid</h1>
-        <p className="tagline">AI-Powered Disaster Coordination Platform</p>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-        </div>
-        <p className="progress-text">{Math.round(progress)}%</p>
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
+      <div className="w-64 h-64 mb-8">
+        <Lottie
+          animationData={rescueAnimation}
+          loop={true}
+          autoplay={true}
+        />
       </div>
+      <h1 className="text-3xl font-bold text-emergency-red mb-2">RescueGrid</h1>
+      <p className="text-gray-600">Emergency Response Platform</p>
+      <div className="mt-8 loader"></div>
     </div>
   );
 };

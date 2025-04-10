@@ -1,71 +1,81 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { collection, onSnapshot, query } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export const MapContext = createContext();
 
 export const MapProvider = ({ children }) => {
+  const [location, setLocation] = useState(null);
+  const [emergencies, setEmergencies] = useState([]);
   const [agencies, setAgencies] = useState([]);
-  const [sosSignals, setSOSSignals] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]); // Default to center of India
-  const [mapZoom, setMapZoom] = useState(5);
 
-  // Load agencies and SOS signals from Firestore
-  useEffect(() => {
-    const agenciesQuery = query(collection(db, 'agencies'));
-    const sosQuery = query(collection(db, 'sos_signals'));
-
-    const unsubscribeAgencies = onSnapshot(agenciesQuery, (snapshot) => {
-      const agenciesData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setAgencies(agenciesData);
-    });
-
-    const unsubscribeSOS = onSnapshot(sosQuery, (snapshot) => {
-      const sosData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setSOSSignals(sosData);
-      setLoading(false);
-    });
-
-    return () => {
-      unsubscribeAgencies();
-      unsubscribeSOS();
-    };
-  }, []);
-
-  // Try to get user's location
+  // Get user's current location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const { latitude, longitude } = position.coords;
-          setMapCenter([latitude, longitude]);
-          setMapZoom(13);
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
         },
         (error) => {
           console.error('Error getting location:', error);
+          // Default location (could be a city center)
+          setLocation({ lat: 40.7128, lng: -74.0060 });
         }
       );
     }
   }, []);
 
+  // Get emergencies from Firebase
+  useEffect(() => {
+    try {
+      const emergenciesRef = collection(db, 'emergencies');
+      
+      const unsubscribe = onSnapshot(emergenciesRef, (snapshot) => {
+        const emergenciesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        
+        setEmergencies(emergenciesData);
+      });
+
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('Error fetching emergencies:', error);
+    }
+  }, []);
+
+  // Get agencies from Firebase
+  useEffect(() => {
+    try {
+      const agenciesRef = collection(db, 'agencies');
+      
+      const unsubscribe = onSnapshot(agenciesRef, (snapshot) => {
+        const agenciesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        
+        setAgencies(agenciesData);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('Error fetching agencies:', error);
+      setLoading(false);
+    }
+  }, []);
+
   const value = {
+    location,
+    emergencies,
     agencies,
-    sosSignals,
-    selectedLocation,
-    setSelectedLocation,
-    mapCenter,
-    setMapCenter,
-    mapZoom,
-    setMapZoom,
-    loading
+    loading,
   };
 
   return (

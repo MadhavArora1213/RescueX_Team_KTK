@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useMap as useMapContext } from '../../hooks/useMap';
-import { useAuth } from '../../hooks/useAuth';
+import Heatmap from './Heatmap';
 
-// Fix Leaflet icon issue
+// Fix for default marker icons in Leaflet with webpack/vite
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -13,42 +13,98 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-// Function to create icon with different colors
-const createColorIcon = (color) => {
-  return L.divIcon({
-    className: '',
-    html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -12]
-  });
+// Custom icons
+const emergencyIcon = new L.Icon({
+  iconUrl: '/src/assets/images/icons/emergency-marker.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
+const agencyIcon = new L.Icon({
+  iconUrl: '/src/assets/images/icons/agency-marker.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
+// Component to handle map view updates
+const MapUpdater = ({ center, zoom }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (center) {
+      map.setView(center, zoom || map.getZoom());
+    }
+  }, [center, zoom, map]);
+  
+  return null;
 };
 
-// Custom icons using colors instead of images
-const agencyIcon = createColorIcon('#3b82f6'); // blue
-const sosIcon = createColorIcon('#ef4444');     // red
+const MapView = ({ 
+  height = '500px', 
+  showEmergencies = true, 
+  showAgencies = true, 
+  heatmapData = [],
+  center = null,
+  zoom = 12
+}) => {
+  const { location, emergencies, agencies } = useMapContext();
+  const [mapCenter, setMapCenter] = useState(center || [40.7128, -74.0060]); // Default to NYC
+  const [mapReady, setMapReady] = useState(false);
+  
+  // Update map center when location changes if no explicit center provided
+  useEffect(() => {
+    if (location && !center) {
+      setMapCenter([location.lat, location.lng]);
+    }
+  }, [location, center]);
 
-// Export both as named and default export to be compatible with all imports
-export const MapView = ({ height = "100%", width = "100%" }) => {
-  const { agencies = [], sosSignals = [], mapCenter = [20.5937, 78.9629], mapZoom = 5 } = useMapContext() || {};
-  const { user } = useAuth() || {};
+  // Set map as ready after a timeout to ensure proper rendering
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMapReady(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="h-full w-full rounded-lg overflow-hidden border border-gray-200" style={{ height, width }}>
+    <div style={{ height }} className="rounded-lg overflow-hidden">
       <MapContainer 
         center={mapCenter} 
-        zoom={mapZoom} 
+        zoom={zoom} 
         style={{ height: '100%', width: '100%' }}
+        zoomControl={true}
       >
         <TileLayer
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        <MapController />
+        {/* Update map center when it changes */}
+        <MapUpdater center={mapCenter} zoom={zoom} />
         
-        {/* Display Agency Markers */}
-        {agencies && agencies.map(agency => (
+        {/* Display emergency markers */}
+        {showEmergencies && emergencies.map(emergency => (
+          <Marker 
+            key={emergency.id} 
+            position={[emergency.location.latitude, emergency.location.longitude]}
+            icon={emergencyIcon}
+          >
+            <Popup>
+              <div>
+                <h3 className="font-bold">{emergency.type}</h3>
+                <p>{emergency.description}</p>
+                <p className="text-sm text-gray-500">
+                  Reported: {new Date(emergency.createdAt.seconds * 1000).toLocaleString()}
+                </p>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+        
+        {/* Display agency markers */}
+        {showAgencies && agencies.map(agency => (
           <Marker 
             key={agency.id} 
             position={[agency.location.latitude, agency.location.longitude]}
@@ -57,56 +113,20 @@ export const MapView = ({ height = "100%", width = "100%" }) => {
             <Popup>
               <div>
                 <h3 className="font-bold">{agency.name}</h3>
-                <p>Type: {agency.type}</p>
-                <p>Status: {agency.status}</p>
-                {user && user.role === 'admin' && (
-                  <button className="mt-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
-                    Contact
-                  </button>
-                )}
+                <p>{agency.description}</p>
+                <p className="text-sm">{agency.phone}</p>
               </div>
             </Popup>
           </Marker>
         ))}
         
-        {/* Display SOS Markers */}
-        {sosSignals && sosSignals.map(sos => (
-          <Marker 
-            key={sos.id} 
-            position={[sos.location.latitude, sos.location.longitude]}
-            icon={sosIcon}
-          >
-            <Popup>
-              <div>
-                <h3 className="font-bold text-red-600">SOS Alert</h3>
-                <p>Type: {sos.type}</p>
-                <p>Status: {sos.status}</p>
-                <p>Reported: {new Date(sos.timestamp).toLocaleString()}</p>
-                <button className="mt-2 bg-red-600 text-white px-2 py-1 rounded text-xs">
-                  Respond
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {/* Display heatmap if data is provided */}
+        {heatmapData.length > 0 && mapReady && (
+          <Heatmap data={heatmapData} />
+        )}
       </MapContainer>
     </div>
   );
 };
 
-// Component to control map view properties
-const MapController = () => {
-  const map = useMap();
-  const { mapCenter, mapZoom } = useMapContext() || {};
-  
-  useEffect(() => {
-    if (mapCenter && mapZoom) {
-      map.setView(mapCenter, mapZoom);
-    }
-  }, [map, mapCenter, mapZoom]);
-  
-  return null;
-};
-
-// Also export as default for consistency
 export default MapView;

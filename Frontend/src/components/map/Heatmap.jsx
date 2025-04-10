@@ -1,77 +1,42 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { useEffect } from 'react';
+import { useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { useMap as useMapContext } from '../../hooks/useMap';
+import 'leaflet.heat';
 
-const HeatmapLayer = () => {
+const Heatmap = ({ data }) => {
   const map = useMap();
-  const { sosSignals } = useMapContext();
-  
+
   useEffect(() => {
-    if (!map || !sosSignals || sosSignals.length === 0) return;
+    if (!map || !data.length) return;
 
-    // Dynamically import leaflet.heat
-    import('leaflet.heat').then(() => {
-      // Convert SOS signals to heatmap points
-      const points = sosSignals.map(sos => {
-        // Intensity based on emergency type (can be customized)
-        let intensity = 0.5;
-        switch(sos.type) {
-          case 'fire':
-            intensity = 0.9;
-            break;
-          case 'flood':
-            intensity = 0.8;
-            break;
-          case 'medical':
-            intensity = 0.6;
-            break;
-          default:
-            intensity = 0.5;
-        }
-        
-        return [
-          sos.location.latitude,
-          sos.location.longitude,
-          intensity // weight/intensity
-        ];
-      });
+    // Convert data to format expected by leaflet.heat
+    const heatData = data.map(point => [
+      point.lat || point.latitude,
+      point.lng || point.longitude,
+      point.intensity || 0.5 // Default intensity if not provided
+    ]);
 
-      // Create and add heat layer
-      const heatLayer = L.heatLayer(points, {
-        radius: 25,
-        blur: 15,
-        maxZoom: 17,
-        gradient: {
-          0.4: 'blue',
-          0.6: 'yellow',
-          0.8: 'orange',
-          1.0: 'red'
-        }
-      }).addTo(map);
-      
-      // Store reference to heatLayer for cleanup
-      return () => {
-        if (map.hasLayer(heatLayer)) {
-          map.removeLayer(heatLayer);
-        }
-      };
-    });
-  }, [map, sosSignals]);
-  
+    // Create heat layer
+    const heatLayer = L.heatLayer(heatData, { 
+      radius: 25,
+      blur: 15,
+      maxZoom: 17,
+      gradient: {
+        0.2: '#FEF3C7', // Light yellow
+        0.4: '#FCD34D', // Yellow
+        0.6: '#F59E0B', // Amber
+        0.8: '#D97706', // Dark amber
+        1.0: '#B91C1C'  // Red
+      }
+    }).addTo(map);
+
+    // Clean up on unmount
+    return () => {
+      map.removeLayer(heatLayer);
+    };
+  }, [map, data]);
+
   return null;
-};
-
-const Heatmap = () => {
-  return (
-    <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '100vh', width: '100%' }}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <HeatmapLayer />
-    </MapContainer>
-  );
 };
 
 export default Heatmap;

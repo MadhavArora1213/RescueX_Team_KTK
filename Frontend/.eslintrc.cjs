@@ -1,33 +1,29 @@
 module.exports = {
+  root: true,
   env: {
     browser: true,
-    es2021: true,
+    es2020: true,
+    node: true,
   },
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
-    'plugin:jsx-a11y/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-    'plugin:react-hooks/recommended',
+    'plugin:react/jsx-runtime',
+    'prettier',
   ],
-  parser: 'babel-eslint',
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
   parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-    ecmaVersion: 12,
+    ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: [
-    'react',
-    'jsx-a11y',
-    'import',
-  ],
+  settings: {
+    react: {
+      version: '18.2',
+    },
+  },
+  plugins: ['react'],
   rules: {
-    'react/react-in-jsx-scope': 'off',
-    'import/prefer-default-export': 'off',
-    'no-unused-vars': ['warn'],
     'react/prop-types': 'off',
+    'no-unused-vars': 'warn',
   },
 };

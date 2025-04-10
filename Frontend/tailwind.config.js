@@ -1,20 +1,24 @@
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        'primary': '#3b82f6',
-        'secondary': '#ef4444',
-        'accent': '#eab308',
+        // Add your custom colors based on CSS variables
+        'emergency-red': '#DC2626',
+        'safe-green': '#10B981',
+        'warning-yellow': '#FACC15',
+        'light-gray': '#F9FAFB',
+        'charcoal-black': '#111827',
       },
-      animation: {
-        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
+      fontFamily: {
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'heading': ['Montserrat', 'sans-serif'],
+      }
     },
   },
   plugins: [],

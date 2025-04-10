@@ -1,24 +1,40 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaExclamationTriangle, FaHome } from 'react-icons/fa';
+import { FiHome, FiAlertTriangle } from 'react-icons/fi';
 
 const NotFound = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4">
-      <div className="text-center">
-        <FaExclamationTriangle className="mx-auto text-yellow-500 text-6xl mb-6" />
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-gray-700 mb-6">Page Not Found</h2>
-        <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-        </p>
+    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
+      <div className="text-9xl font-bold text-emergency-red mb-6">
+        <FiAlertTriangle className="inline-block" />
+      </div>
+      <h1 className="text-9xl font-bold text-emergency-red">404</h1>
+      <h2 className="text-3xl font-bold mt-6 mb-2">Page Not Found</h2>
+      <p className="text-lg text-gray-600 mb-8 max-w-md">
+        The page you are looking for doesn't exist or has been moved.
+      </p>
+      <div className="flex flex-wrap justify-center gap-4">
         <Link 
           to="/" 
-          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-6 py-3 bg-emergency-red text-white font-medium rounded-lg hover:bg-red-700 transition-colors flex items-center"
         >
-          <FaHome className="mr-2" />
-          Return to Home
+          <FiHome className="mr-2" />
+          Back to Home
         </Link>
+        <Link 
+          to="/dashboard" 
+          className="px-6 py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
+        >
+          Go to Dashboard
+        </Link>
+      </div>
+      
+      <div className="mt-12 p-6 bg-blue-50 rounded-lg max-w-md">
+        <h3 className="font-bold text-blue-800 mb-2">Need Help?</h3>
+        <p className="text-blue-700">
+          If you're experiencing an emergency, please call our emergency hotline at 
+          <a href="tel:911" className="font-bold ml-1 underline">911</a> or use the SOS button on the dashboard.
+        </p>
       </div>
     </div>
   );
