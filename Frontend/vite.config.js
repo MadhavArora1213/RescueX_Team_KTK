@@ -1,24 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
-      'leaflet.heat': 'node_modules/leaflet.heat/dist/leaflet-heat.js'
+      '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
-    port: 3000,
-    open: true,
+    port: 3000
   },
-  build: {
-    outDir: 'dist',
-  },
-  optimizeDeps: {
-    include: ['leaflet.heat']
+  css: {
+    // CSS preprocessing configuration
+    postcss: './postcss.config.js',
   }
 });

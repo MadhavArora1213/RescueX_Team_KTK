@@ -2,7 +2,8 @@ import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 import MapView from '../components/map/MapView';
 import { AgencyDashboard } from '../components/agency/AgencyDashboard';
-import { ChatBot } from '../components/sos/ChatBot';
+// Fix the import - use default import instead of named import
+import ChatBot from '../components/sos/ChatBot';
 
 const Dashboard = () => {
     const { user } = useAuth();
@@ -10,7 +11,7 @@ const Dashboard = () => {
     return (
         <div className="flex flex-col h-screen">
             <header className="bg-red-600 text-white p-4">
-                <h1 className="text-xl">Welcome, {user.name}</h1>
+                <h1 className="text-xl">Welcome, {user?.displayName || 'User'}</h1>
             </header>
             <div className="flex flex-1">
                 <aside className="w-1/4 bg-gray-200 p-4">

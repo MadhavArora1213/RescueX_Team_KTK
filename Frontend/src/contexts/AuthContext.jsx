@@ -1,87 +1,49 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { 
   getAuth, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut as firebaseSignOut,
   onAuthStateChanged,
-  updateProfile
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signOut as firebaseSignOut
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import app from '../firebase';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const auth = getAuth();
+  const auth = getAuth(app);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Get additional user data from Firestore
-        try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (userDoc.exists()) {
-            // Combine Firebase auth user with Firestore data
-            setUser({
-              ...firebaseUser,
-              ...userDoc.data()
-            });
-          } else {
-            setUser(firebaseUser);
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          setUser(firebaseUser);
-        }
-      } else {
-        setUser(null);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
       setLoading(false);
     });
 
+    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [auth]);
 
-  const register = async (email, password, displayName, agencyData) => {
+  // Auth functions
+  const login = async (email, password) => {
     try {
-      const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Update profile with display name
-      await updateProfile(firebaseUser, { displayName });
-      
-      // Store additional user data in Firestore
-      const userData = {
-        displayName,
-        email,
-        role: 'agency', // Default role
-        ...agencyData,
-        createdAt: new Date().toISOString()
-      };
-      
-      await setDoc(doc(db, 'users', firebaseUser.uid), userData);
-      
-      // Update local user state
-      setUser({
-        ...firebaseUser,
-        ...userData
-      });
-      
-      return firebaseUser;
+      return await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Login error:", error.message);
       throw error;
     }
   };
 
-  const signIn = async (email, password) => {
+  const register = async (name, email, password) => {
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      return result.user;
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      // Update the user profile with the name
+      await updateProfile(credential.user, { displayName: name });
+      return credential;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Registration error:", error.message);
       throw error;
     }
   };
@@ -89,24 +51,24 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
-      setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Sign out error:", error.message);
       throw error;
     }
   };
 
+  // Auth state and functions that modify auth state
   const value = {
     user,
     loading,
+    login,
     register,
-    signIn,
     signOut
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

@@ -1,89 +1,40 @@
-import React, { useEffect, useState, useRef } from 'react';
-import Lottie from 'lottie-react';
-import rescueAnimation from '../../assets/animations/rescue-animation.json';
+import React, { useState, useEffect } from 'react';
 import './LoadingAnimation.css';
 
 const LoadingAnimation = ({ onLoadingComplete }) => {
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [showAnimation, setShowAnimation] = useState(true);
-  const animationRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+  const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Simulate loading progress
     const interval = setInterval(() => {
-      setLoadingProgress(prevProgress => {
-        const newProgress = prevProgress + Math.random() * 10;
-        return newProgress >= 100 ? 100 : newProgress;
+      setProgress(prev => {
+        const newProgress = prev + Math.random() * 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setFadeOut(true);
+            setTimeout(() => {
+              if (onLoadingComplete) onLoadingComplete();
+            }, 500);
+          }, 500);
+          return 100;
+        }
+        return newProgress;
       });
-    }, 300);
+    }, 200);
 
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (loadingProgress >= 100) {
-      // Wait for 1 second to show the completed state before hiding
-      const timeout = setTimeout(() => {
-        // Start exit animation
-        setShowAnimation(false);
-        
-        // Wait for exit animation to complete
-        setTimeout(() => {
-          if (onLoadingComplete) onLoadingComplete();
-        }, 1000);
-      }, 1000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [loadingProgress, onLoadingComplete]);
-
-  const handleAnimationClick = () => {
-    // Add some interactivity - speed up the animation on click
-    if (animationRef.current) {
-      animationRef.current.setSpeed(animationRef.current.animationSpeed === 1 ? 2 : 1);
-    }
-    
-    // Create ripple effect
-    const ripple = document.createElement('div');
-    ripple.classList.add('ripple');
-    document.querySelector('.loading-container').appendChild(ripple);
-    
-    setTimeout(() => {
-      ripple.remove();
-    }, 1000);
-  };
+  }, [onLoadingComplete]);
 
   return (
-    <div className={`loading-screen ${showAnimation ? 'active' : 'fade-out'}`}>
-      <div className="loading-container" onClick={handleAnimationClick}>
-        <div className="animation-wrapper">
-          <Lottie 
-            animationData={rescueAnimation} 
-            loop={true}
-            lottieRef={animationRef}
-            className="rescue-animation"
-          />
+    <div className={`loading-screen ${fadeOut ? 'fade-out' : ''}`}>
+      <div className="loading-container">
+        <h1 className="logo">RescueGrid</h1>
+        <p className="tagline">AI-Powered Disaster Coordination Platform</p>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
         </div>
-        
-        <div className="loading-text">
-          <h1>RescueGrid</h1>
-          <p>AI-Powered Disaster Coordination Platform</p>
-        </div>
-        
-        <div className="progress-container">
-          <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${loadingProgress}%` }}
-            ></div>
-          </div>
-          <div className="progress-text">{Math.round(loadingProgress)}%</div>
-        </div>
-        
-        <div className="interactive-hint">
-          <span className="pulse"></span>
-          Click Animation For Interaction
-        </div>
+        <p className="progress-text">{Math.round(progress)}%</p>
       </div>
     </div>
   );

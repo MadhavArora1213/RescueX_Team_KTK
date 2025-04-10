@@ -13,27 +13,20 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-// Custom icon for agencies
-const agencyIcon = new L.Icon({
-  iconUrl: '/images/agency-marker.png',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-  // Fallback to default if image not found
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-});
+// Function to create icon with different colors
+const createColorIcon = (color) => {
+  return L.divIcon({
+    className: '',
+    html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
+  });
+};
 
-// Custom icon for SOS signals
-const sosIcon = new L.Icon({
-  iconUrl: '/images/sos-marker.png',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-  // Fallback to default if image not found
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-});
+// Custom icons using colors instead of images
+const agencyIcon = createColorIcon('#3b82f6'); // blue
+const sosIcon = createColorIcon('#ef4444');     // red
 
 // Export both as named and default export to be compatible with all imports
 export const MapView = ({ height = "100%", width = "100%" }) => {
@@ -55,7 +48,7 @@ export const MapView = ({ height = "100%", width = "100%" }) => {
         <MapController />
         
         {/* Display Agency Markers */}
-        {agencies.map(agency => (
+        {agencies && agencies.map(agency => (
           <Marker 
             key={agency.id} 
             position={[agency.location.latitude, agency.location.longitude]}
@@ -77,7 +70,7 @@ export const MapView = ({ height = "100%", width = "100%" }) => {
         ))}
         
         {/* Display SOS Markers */}
-        {sosSignals.map(sos => (
+        {sosSignals && sosSignals.map(sos => (
           <Marker 
             key={sos.id} 
             position={[sos.location.latitude, sos.location.longitude]}
